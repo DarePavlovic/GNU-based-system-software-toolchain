@@ -24,43 +24,24 @@ The project is divided into three main tasks:
 
 The assembler translates assembly language code into machine code. It supports various directives and instructions as specified in the project requirements.
 
-- **Directives**:
-  - `.global`
-  - `.extern`
-  - `.section`
-  - `.word`
-  - `.skip`
-  - `.ascii`
-  - `.equ`
-  - `.end`
+#### Directives
 
-- **Instructions**:
-  - `halt`
-  - `int`
-  - `iret`
-  - `call`
-  - `ret`
-  - `jmp`
-  - `beq`
-  - `bne`
-  - `bgt`
-  - `push`
-  - `pop`
-  - `xchg`
-  - `add`
-  - `sub`
-  - `mul`
-  - `div`
-  - `not`
-  - `and`
-  - `or`
-  - `xor`
-  - `shl`
-  - `shr`
-  - `ld`
-  - `st`
-  - `csrrd`
-  - `csrwr`
+| `.global` | `.extern` | `.section` | `.word`   |
+|-----------|-----------|------------|
+| `.skip`   | `.ascii`  | `.equ`     | `.end`    |
+
+#### Instructions
+
+| `halt` | `int` | `iret` |
+|-------|-------|-------|
+| `call` | `ret` | `jmp` |
+| `beq` | `bne` | `bgt` |
+| `push` | `pop` | `xchg` |
+| `add` | `sub` | `mul` |
+| `div` | `not` | `and` |
+| `or` | `xor` | `shl` |
+| `shr` | `ld` | `st` |
+| `csrrd` | `csrwr` | |
 
 ### Linker
 
