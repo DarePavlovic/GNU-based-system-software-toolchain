@@ -27,7 +27,7 @@ The assembler translates assembly language code into machine code. It supports v
 #### Directives
 
 | `.global` | `.extern` | `.section` | `.word`   |
-|-----------|-----------|------------|
+|-----------|-----------|------------|------------|
 | `.skip`   | `.ascii`  | `.equ`     | `.end`    |
 
 #### Instructions
