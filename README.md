@@ -19,12 +19,6 @@ The project is divided into three main tasks:
 2. **Linker**
 3. **Emulator**
 
-### Lexical Analysis
-
-The project uses Flex and Bison for lexical analysis and parsing of input files. These tools help in generating the lexer and parser needed for the assembler and linker.
-
-- **Flex**: A tool for generating scanners, programs that recognize lexical patterns in text.
-- **Bison**: A parser generator that converts a grammar description for an LALR(1) context-free grammar into a C program to parse that grammar.
 
 ### Assembler
 
@@ -90,6 +84,14 @@ The emulator simulates the execution of the machine code on an abstract computer
   - **Terminal**: Input/output device with memory-mapped registers.
   - **Timer**: Generates periodic interrupts.
 
+### Lexical Analysis
+
+The project uses Flex and Bison for lexical analysis and parsing of input files. These tools help in generating the lexer and parser needed for the assembler and linker.
+
+- **Flex**: A tool for generating scanners, programs that recognize lexical patterns in text.
+- **Bison**: A parser generator that converts a grammar description for an LALR(1) context-free grammar into a C program to parse that grammar.
+
+
 ## Development Environment
 
 The project is developed under a Linux operating system on an amd64 architecture using C/C++. The recommended development environment is a VMware virtual machine with all necessary tools pre-installed.
@@ -108,6 +110,3 @@ To build and run the project, use the provided Makefile with the following targe
 ./asembler -o main.o main.s
 ./linker -hex -place=my_code_main@0x40000000 -place=my_code_handler@0xC0000000 -o program.hex handler.o main.o
 ./emulator program.hex
-
-
-You can copy this content into your README.md file on GitHub. Let me know if you need any more adjustments!
