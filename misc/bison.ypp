@@ -1,0 +1,312 @@
+%{ 
+
+#include<cstdio>
+#include<string>
+#include<iostream>
+#include<fstream>
+#include <vector>
+
+#include "../inc/assembler.hpp"
+using namespace std;
+
+FILE* filePointer;
+extern  FILE* yyin;
+extern int yylex();
+extern int yyparse();
+void yyerror(char const*msg);
+
+Assembler* a;
+struct Operand;
+Operand* opernd = new Operand(); 
+Operand* operndS = new Operand(); 
+
+struct symLitNum;
+vector<symLitNum*> sln_list = std::vector<symLitNum*>();
+string asciiS;
+int izraz;
+
+std::vector<std::string> sym_list = std::vector<std::string>();
+
+%}
+
+%union {
+    int ival;
+    char* sval;
+}
+
+%token <ival> NUMBER
+%token <sval> LITERAL
+%token <sval> SYMBOL
+%token <sval> R0 
+%token <sval> R1
+%token <sval> R2
+%token <sval> R3
+%token <sval> R4
+%token <sval> R5
+%token <sval> R6
+%token <sval> R7
+%token <sval> R8
+%token <sval> R9
+%token <sval> R10
+%token <sval> R11
+%token <sval> R12
+%token <sval> R13
+%token <sval> R14
+%token <sval> R15
+%token <sval> STATUS
+%token <sval> HANDLER
+%token <sval> CAUSE
+
+
+%type <sval> reg
+%type <ival> operandExpr
+%type <sval> csr
+
+%start input;
+
+%%
+
+
+
+%token EOL DOLAR COMMA PERCENTAGE PLUS COLON LBRACKET RBRACKET;
+%token GLOBAL EXTERN SECTION WORD SKIP ASCII EQU END;
+%token QUOTATION MINUS MULTIPLY;
+%token HALT INT IRET CALL RET JMP BEQ BNE BGT PUSH POP XCHG ADD SUB MUL DIV;
+%token AND OR XOR SHL SHR NOT LD ST CSRRD CSRWR;
+
+
+input:
+|
+ line input
+;
+
+line:
+  EOL
+|
+ label EOL
+| label_dir EOL
+| instruction EOL
+;
+
+
+label: 
+  SYMBOL COLON instruction {a->addLabel($1);}
+|
+  SYMBOL COLON  {a->addLabel($1);}
+  |
+  csr COLON {a->addLabel($1);}
+; 
+
+label_dir: 
+  GLOBAL listOfSymbols {a->setGlobal(sym_list);sym_list.clear();}
+|
+  EXTERN listOfSymbols {a->setExtern(sym_list);sym_list.clear();}
+|
+  SECTION SYMBOL {a->addSection($2);}
+|
+  WORD listOfSymbolsOrLiterals {a->setWord(sln_list);sln_list.clear();}
+|
+  SKIP exprNL {a->setSkip(sln_list);sln_list.clear();}
+|
+  ASCII asciiString  {a->setAscii(asciiS);}
+|
+  EQU SYMBOL COMMA exp {a->setEQU($2, izraz);}
+|
+  END {a->setEnd();}
+;
+
+listOfSymbols: 
+  listOfSymbols COMMA SYMBOL {string s = $3; sym_list.push_back(s);}
+  |
+  listOfSymbols COMMA csr {string s = $3; sym_list.push_back(s);}
+  |
+  csr {string s = $1; sym_list.push_back(s);}
+  |
+  SYMBOL { string s = $1; sym_list.push_back(s);}
+;
+
+listOfSymbolsOrLiterals:
+  listOfSymbolsOrLiterals COMMA SYMBOL {symLitNum* s = new symLitNum(); string p = $3;s->sym=p;s->num=-1; s->lit="";sln_list.push_back(s);}
+|
+  listOfSymbolsOrLiterals COMMA exprNL
+|
+  SYMBOL {string p = $1;symLitNum *s = new symLitNum();s->sym=p;s->num=-1; s->lit="";sln_list.push_back(s);}
+|
+  exprNL
+;
+
+asciiString: QUOTATION SYMBOL QUOTATION {asciiS=$2;}
+;
+
+ 
+exp:
+  exp MULTIPLY NUMBER{izraz *=$3;}
+|
+  exp MULTIPLY LITERAL{int l = a->literalToNumber($3); izraz *=l;}
+|
+  exp PLUS NUMBER{izraz +=$3;}
+|
+  exp PLUS LITERAL {int l = a->literalToNumber($3); izraz +=l;}
+|
+  exp MINUS NUMBER {izraz -=$3;}
+  |
+  exp MINUS LITERAL{int l = a->literalToNumber($3); izraz -=l;}
+  |
+  LITERAL {izraz = a->literalToNumber($1);}
+  |
+  NUMBER {izraz = $1;}
+;
+ 
+
+exprNL:
+LITERAL {string p = $1;symLitNum *s = new symLitNum();;s->sym="";s->num=-1;s->lit=p; sln_list.push_back(s);}
+|
+  NUMBER {symLitNum *s = new symLitNum();s->sym="";s->num=$1; s->lit="";sln_list.push_back(s);}
+;
+
+
+
+instruction:
+  HALT {a->instructionHALT();}
+|
+  INT {a->instructionINT();}
+|
+  IRET {a->instructionIRET();}
+|
+  CALL jmpOperand {a->instructionJumpsOrCall("call", sln_list);sln_list.clear();}
+|
+  RET {a->instructionRET();}
+|
+  JMP jmpOperand {a->instructionJumpsOrCall("jmp", sln_list); sln_list.clear();}
+|
+  BEQ PERCENTAGE reg COMMA PERCENTAGE reg COMMA jmpOperand {a->instructionBJMP("beq", $3, $6, sln_list);sln_list.clear();}
+|
+  BNE PERCENTAGE reg COMMA PERCENTAGE reg COMMA jmpOperand {a->instructionBJMP("bne", $3, $6, sln_list);sln_list.clear();}
+|
+  BGT PERCENTAGE reg COMMA PERCENTAGE reg COMMA jmpOperand {a->instructionBJMP("bgt", $3, $6, sln_list);sln_list.clear();}
+| 
+  PUSH PERCENTAGE reg {a->pushOperation($3);}
+|
+  POP PERCENTAGE reg {a->popOperation($3);}
+|
+  XCHG PERCENTAGE reg COMMA PERCENTAGE reg {a->setXCHG($3, $6);}
+|
+  ADD PERCENTAGE reg COMMA PERCENTAGE reg {a->setAritmeticOperation($3,$6,1);}
+|
+  SUB PERCENTAGE reg COMMA PERCENTAGE reg {a->setAritmeticOperation($3,$6,2);}
+|
+  MUL PERCENTAGE reg COMMA PERCENTAGE reg {a->setAritmeticOperation($3,$6,3);}
+|
+  DIV PERCENTAGE reg COMMA PERCENTAGE reg {a->setAritmeticOperation($3,$6,4);}
+|
+  NOT PERCENTAGE reg {a->setLogicalOperations($3,"",1);}
+|
+  AND PERCENTAGE reg COMMA PERCENTAGE reg {a->setLogicalOperations($3,$6,2);}
+|
+  OR PERCENTAGE reg COMMA PERCENTAGE reg {a->setLogicalOperations($3,$6,3);}
+|
+  XOR PERCENTAGE reg COMMA PERCENTAGE reg {a->setLogicalOperations($3,$6,4);}
+|
+  SHL PERCENTAGE reg COMMA PERCENTAGE reg {a->setShiftOperation($3,$6,1);}
+|
+  SHR PERCENTAGE reg COMMA PERCENTAGE reg {a->setShiftOperation($3,$6,2);}
+|
+  LD operand COMMA PERCENTAGE reg {a->loadOperation(opernd, $5);}
+|
+  ST PERCENTAGE reg COMMA operandStore {a->storeOperation(operndS, $3);}
+|
+  CSRRD PERCENTAGE csr COMMA PERCENTAGE reg {a->csrrdOperation($3,$6);}
+|
+  CSRWR PERCENTAGE reg COMMA PERCENTAGE csr {a->csrwrOperation($6, $3);}
+;
+
+reg:  
+  R0 {$$=$1;}
+| R1 {$$=$1;}
+| R2 {$$=$1;}
+| R3 {$$=$1;}
+| R4 {$$=$1;}
+| R5 {$$=$1;}
+| R6 {$$=$1;}
+| R7 {$$=$1;}
+| R8 {$$=$1;}
+| R9 {$$=$1;}
+| R10 {$$=$1;}
+| R11 {$$=$1;}
+| R12 {$$=$1;}
+| R13 {$$=$1;}
+| R14 {$$=$1;}
+| R15 {$$=$1;}
+;
+
+csr: 
+  STATUS {$$=$1;}
+| HANDLER {$$=$1;}
+| CAUSE {$$=$1;}
+;
+operand:
+  DOLAR operandExpr {opernd->argType = 1; opernd->addrType = 1; opernd->value=$2;opernd->symbol="";opernd->regNumb="";}
+|
+  DOLAR SYMBOL {opernd->argType = 0; opernd->addrType = 1; opernd->symbol=$2;opernd->value=0;opernd->regNumb="";}
+|
+  DOLAR csr {opernd->argType = 0; opernd->addrType = 1; opernd->symbol=$2;opernd->value=0;opernd->regNumb="";}
+|
+  LITERAL   {opernd->argType=1; opernd->addrType=2; opernd->value=a->literalToNumber($1); opernd->symbol="";opernd->regNumb="";}
+|
+  SYMBOL    {opernd->argType = 0; opernd->addrType = 2; opernd->symbol=$1;opernd->value=0;opernd->regNumb="";}
+|
+  PERCENTAGE reg {opernd->argType = 2; opernd->addrType = 0; opernd->symbol="";opernd->value=0;opernd->regNumb=$2;}
+|
+  LBRACKET PERCENTAGE reg RBRACKET {opernd->argType = 3; opernd->addrType = 2; opernd->symbol="";opernd->value=0;opernd->regNumb=$3;}
+|
+  LBRACKET PERCENTAGE reg PLUS LITERAL RBRACKET {opernd->argType = 3; opernd->addrType = 2;opernd->symbol=""; opernd->value = a->literalToNumber($5); opernd->regNumb=$3;}
+|
+  LBRACKET PERCENTAGE reg PLUS SYMBOL RBRACKET {opernd->argType = 4; opernd->addrType = 2; opernd->symbol = $5; opernd->value=0; opernd->regNumb=$3;}
+;
+
+operandStore:
+  LITERAL   {operndS->argType=1; operndS->addrType=2; operndS->value=a->literalToNumber($1); operndS->symbol="";operndS->regNumb="";}
+|
+  SYMBOL    {operndS->argType = 0; operndS->addrType = 2; operndS->symbol=$1;operndS->value=0;operndS->regNumb="";}
+|
+  LBRACKET PERCENTAGE reg RBRACKET {operndS->argType = 3; operndS->addrType = 0; operndS->symbol="";operndS->value=0;operndS->regNumb=$3;}
+|
+  LBRACKET PERCENTAGE reg PLUS LITERAL RBRACKET {operndS->argType = 3; operndS->addrType = 0;operndS->symbol=""; operndS->value = a->literalToNumber($5); operndS->regNumb=$3;}
+|
+  LBRACKET PERCENTAGE reg PLUS SYMBOL RBRACKET {operndS->argType = 4; operndS->addrType = 0; operndS->symbol = $5; operndS->value=0; operndS->regNumb=$3;}
+;
+
+
+
+jmpOperand:
+  exprNL
+|
+  SYMBOL {string p = $1;symLitNum *s = new symLitNum();s->sym=p;s->num=-1; s->lit="";sln_list.push_back(s);}
+;
+
+operandExpr:
+LITERAL {$$=a->literalToNumber($1);}
+|
+NUMBER  {$$=($1);}
+;
+
+
+
+  %%
+
+  void parser_main(Assembler* k, char* fileName){
+    a = k;
+    yyin = fopen(fileName, "r");
+    if(yyin==0){
+      return ;
+    }
+
+    yyparse();
+    
+    fclose(yyin);
+  }
+
+    void yyerror(char const* msg){
+      printf("%s\n",msg);
+      
+    }

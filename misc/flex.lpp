@@ -1,0 +1,91 @@
+
+
+%{
+  #define YY_DECL int yylex()
+  
+  #include "bison.tab.hpp"
+ 
+%}
+%option noyywrap
+%option yylineno
+
+%%
+
+"#".* {} /*komentar*/
+
+"$" { printf("%s ",yytext);  return DOLAR;}
+","  { printf("%s ",yytext);  return COMMA;}
+"%"  { printf("%s ",yytext);  return PERCENTAGE;}
+"+" { printf("%s ",yytext);  return PLUS;}
+":" { printf("%s ",yytext);  return COLON;}
+"[" { printf("%s ",yytext);  return LBRACKET;}
+"]" { printf("%s ",yytext);  return RBRACKET;}
+"-" { printf("%s ",yytext);  return MINUS;}
+"*" { printf("%s ",yytext);  return MULTIPLY;}
+
+
+\.global {printf("%s ",yytext);  return GLOBAL;}
+\.extern { printf("%s ",yytext);  return EXTERN;}
+\.section {printf("%s ",yytext);   return SECTION;}
+\.word { printf("%s ",yytext);  return WORD;}
+\.skip { printf("%s ",yytext);  return SKIP;}
+\.ascii {  return ASCII;}
+\.equ {  return EQU;}
+\.end {printf("%s ",yytext);  return END;}
+halt { printf("%s ",yytext); return HALT;}
+int { printf("%s ",yytext);  return INT;}
+iret { printf("%s ",yytext);   return IRET;}
+call { printf("%s ",yytext);   return CALL;}
+ret { printf("%s ",yytext);  return RET;}
+jmp { printf("%s ",yytext);  return JMP;}
+beq { printf("%s ",yytext);  return BEQ;}
+bne { printf("%s ",yytext);  return BNE;}
+bgt { printf("%s ",yytext);  return BGT;}
+push { printf("%s ",yytext);  return PUSH;}
+pop { printf("%s ",yytext);  return POP;}
+xchg { printf("%s ",yytext);  return XCHG;}
+add { printf("%s ",yytext);  return ADD;}
+sub { printf("%s ",yytext);  return SUB;}
+mul { printf("%s ",yytext);  return MUL;}
+div { printf("%s ",yytext);  return DIV;}
+not { printf("%s ",yytext);  return NOT;}
+and { printf("%s ",yytext);  return AND;}
+or { printf("%s ",yytext);  return OR;}
+xor { printf("%s ",yytext);  return XOR;}
+shl { printf("%s ",yytext);  return SHL;}
+ld { printf("%s ",yytext);  return LD;}
+st { printf("%s ",yytext);  return ST;}
+csrwr { printf("%s ",yytext);  return CSRWR;}
+csrrd { printf("%s ",yytext);  return CSRRD;}
+r0 {yylval.sval = strdup(yytext); printf("%s ",yytext);   return R0;}
+r1 {yylval.sval = strdup(yytext); printf("%s ",yytext);   return R1;}
+r2 {yylval.sval = strdup(yytext); printf("%s ",yytext);   return R2;}
+r3 {yylval.sval = strdup(yytext); printf("%s ",yytext);   return R3;}
+r4 {yylval.sval = strdup(yytext); printf("%s ",yytext);   return R4;}
+r5 {yylval.sval = strdup(yytext); printf("%s ",yytext);   return R5;}
+r6 {yylval.sval = strdup(yytext);  printf("%s ",yytext);  return R6;}
+r7 {yylval.sval = strdup(yytext); printf("%s ",yytext);   return R7;}
+r8 {yylval.sval = strdup(yytext); printf("%s ",yytext);   return R8;}
+r9 {yylval.sval = strdup(yytext); printf("%s ",yytext);   return R9;}
+r10 {yylval.sval = strdup(yytext); printf("%s ",yytext);  return R10;}
+r11 {yylval.sval = strdup(yytext); printf("%s ",yytext);   return R11;}
+r12 {yylval.sval = strdup(yytext); printf("%s ",yytext);   return R12;}
+r13 {yylval.sval = strdup(yytext); printf("%s ",yytext);   return R13;}
+r14|sp {yylval.sval = strdup(yytext); printf("%s ",yytext);   return R14;}
+r15|pc {yylval.sval = strdup(yytext); printf("%s ",yytext);   return R15;}
+status { yylval.sval = strdup(yytext);printf("%s ",yytext);  return STATUS;}
+handler { yylval.sval = strdup(yytext);printf("%s ",yytext);   return HANDLER;}
+cause { yylval.sval = strdup(yytext);printf("%s ",yytext);  return CAUSE;}
+
+\" {return QUOTATION;}
+\b 	{ }
+\t 	{ }
+\r { }
+\f { }
+\n {printf("\n");return EOL;}
+0x[0-9a-fA-F]+  {printf("%s ",yytext); yylval.sval = strdup(yytext);  return LITERAL; }
+[0-9]+          {printf("%s ",yytext); yylval.ival = atoi(yytext);   return NUMBER; }
+([a-zA-Z])[a-zA-Z0-9_]* 	{printf("%s ",yytext); yylval.sval = strdup(yytext); return SYMBOL;}
+
+. { }
+%%

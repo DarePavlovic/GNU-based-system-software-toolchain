@@ -1,0 +1,54 @@
+
+--------------------------------------------------------------------
+| SymbolName | SectionNumber | Value   | IsGlobal | Number | Size |
+
+--------------------------------------------------------------------
+| my_data    | 15           | 0       | Loc      | 15     | 0      |
+| my_code    | 14           | 0       | Loc      | 14     | 0      |
+| value7     | 15           | 18      | Glob     | 13     | 0      |
+|            | 0            | 0       | Loc      | 0      | 0      |
+| handler    | 0            | 0       | Glob     | 1      | 2      |
+| value4     | 15           | c       | Glob     | 10     | 0      |
+| mathSub    | 0            | 0       | Glob     | 3      | 2      |
+| mathMul    | 0            | 0       | Glob     | 4      | 2      |
+| value3     | 15           | 8       | Glob     | 9      | 0      |
+| value6     | 15           | 14      | Glob     | 12     | 0      |
+| mathDiv    | 0            | 0       | Glob     | 5      | 2      |
+| value2     | 15           | 4       | Glob     | 8      | 0      |
+| value5     | 15           | 10      | Glob     | 11     | 0      |
+| my_start   | 14           | 0       | Glob     | 6      | 0      |
+| mathAdd    | 0            | 0       | Glob     | 2      | 2      |
+| value1     | 15           | 0       | Glob     | 7      | 0      |
+
+--------------------------------------------------------------------
+Section Realocation
+--------------------
+Section: .my_data with size: 38 
+----------------------------------------------
+ Offset  :  Symbol : Addend 
+----------------------------------------------
+   1c   :    value1    :   0  
+   20   :    value2    :   0  
+   24   :    value3    :   0  
+   28   :    value4    :   0  
+   2c   :    value5    :   0  
+   30   :    value6    :   0  
+   34   :    value7    :   0  
+----------------------------------------------
+Section: .my_code with size: fc 
+----------------------------------------------
+ Offset  :  Symbol : Addend 
+----------------------------------------------
+   c4   :    my_start    :   0  
+   cc   :    handler    :   0  
+   d4   :    value2    :   0  
+   d8   :    mathAdd    :   0  
+   dc   :    value3    :   0  
+   e0   :    mathSub    :   0  
+   e4   :    value4    :   0  
+   e8   :    mathDiv    :   0  
+   ec   :    value5    :   0  
+   f0   :    value6    :   0  
+   f4   :    value1    :   0  
+   f8   :    value7    :   0  
+----------------------------------------------

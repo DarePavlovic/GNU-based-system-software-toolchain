@@ -1,0 +1,32 @@
+
+--------------------------------------------------------------------
+| SymbolName | SectionNumber | Value   | IsGlobal | Number | Size |
+
+--------------------------------------------------------------------
+| finish     | 5            | 24      | Loc      | 9      | 0      |
+| handle_software | 5            | 44      | Loc      | 8      | 0      |
+| handle_terminal | 5            | 3c      | Loc      | 7      | 0      |
+| handle_timer | 5            | 34      | Loc      | 6      | 0      |
+| my_handler | 5            | 0       | Loc      | 5      | 0      |
+| handler    | 5            | 0       | Glob     | 4      | 0      |
+| isr_software | 0            | 0       | Glob     | 3      | 2      |
+| isr_terminal | 0            | 0       | Glob     | 2      | 2      |
+| isr_timer  | 0            | 0       | Glob     | 1      | 2      |
+|            | 0            | 0       | Loc      | 0      | 0      |
+
+--------------------------------------------------------------------
+Section Realocation
+--------------------
+Section: .my_handler with size: 6c 
+----------------------------------------------
+ Offset  :  Symbol : Addend 
+----------------------------------------------
+   4c   :    handler    :   0  
+   50   :    finish    :   0  
+   54   :    handle_timer    :   0  
+   58   :    isr_timer    :   0  
+   5c   :    handle_terminal    :   0  
+   60   :    isr_terminal    :   0  
+   64   :    handle_software    :   0  
+   68   :    isr_software    :   0  
+----------------------------------------------
